@@ -1,0 +1,18 @@
+* text=auto eol=lf
+
+# Vendored source is stored byte-for-byte as upstream ships it: KeePassLib uses CRLF.
+# Normalising it to LF would make `diff -r` against a fresh upstream checkout report every
+# line of every file as changed, which is the re-merge procedure UPSTREAM.md documents.
+# The files this repository authors are excepted below and follow LF.
+**                    -text
+.gitattributes        text eol=lf
+KeePassLib.csproj     text eol=lf
+UPSTREAM.md           text eol=lf
+packages.lock.json    text eol=lf
+Keys/IChallengeResponseUserKey.cs  text eol=lf
+Cryptography/Cipher/TwofishCipherEngine.cs  text eol=lf
+
+# BouncyCastle's Twofish, CBC and PKCS#7 sources are stored as upstream ships them, so `diff -r`
+# against its tag shows only the adaptations bouncycastle-twofish/UPSTREAM.md lists.
+bouncycastle-twofish/**            -text
+bouncycastle-twofish/UPSTREAM.md   text eol=lf
