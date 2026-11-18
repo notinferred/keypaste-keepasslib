@@ -79,13 +79,13 @@ On Windows a rename can return while it is only in the cache, so a power loss ju
 
 ### `KEYPASTE_TWOFISH`
 
-KeePass reads and writes Twofish only through its TwofishCipher plugin, so upstream's `CipherPool` holds AES and ChaCha20 alone and a Twofish vault KeePassXC wrote failed to open with "unknown cipher". This guard registers Twofish under the UUID the plugin and KeePassXC write, `ad68f29f-576f-4bb9-a36a-d47af965346c`: a 256-bit key and a 128-bit IV, in CBC mode with PKCS#7 padding. The block cipher, the mode and the padding are BouncyCastle C#'s, vendored at [../bouncycastle-twofish](../bouncycastle-twofish/UPSTREAM.md) and compiled into this assembly as internal types; the engine only moves whole blocks through them and zeroes its key copies when its stream closes. Every reader and writer of a KDBX file takes its cipher from `CipherPool.GlobalPool`, so the CLI and the desktop both open and save Twofish vaults with no registration of their own and no reflection. keypaste never chooses Twofish: a vault keeps the cipher it was opened with.
+KeePass reads and writes Twofish only through its TwofishCipher plugin, so upstream's `CipherPool` holds AES and ChaCha20 alone and a Twofish vault KeePassXC wrote failed to open with "unknown cipher". This guard registers Twofish under the UUID the plugin and KeePassXC write, `ad68f29f-576f-4bb9-a36a-d47af965346c`: a 256-bit key and a 128-bit IV, in CBC mode with PKCS#7 padding. The block cipher, the mode and the padding are BouncyCastle C#'s, vendored in [bouncycastle-twofish](bouncycastle-twofish/UPSTREAM.md) and compiled into this assembly as internal types; the engine only moves whole blocks through them and zeroes its key copies when its stream closes. Every reader and writer of a KDBX file takes its cipher from `CipherPool.GlobalPool`, so the CLI and the desktop both open and save Twofish vaults with no registration of their own and no reflection. keypaste never chooses Twofish: a vault keeps the cipher it was opened with.
 
 | File | Change |
 |---|---|
 | `Cryptography/Cipher/TwofishCipherEngine.cs` | New: the engine and the CBC transform it streams through |
 | `Cryptography/Cipher/CipherPool.cs` | `GlobalPool` adds `TwofishCipherEngine` after AES and ChaCha20 |
-| `KeePassLib.csproj` | Defines the guard and compiles `../bouncycastle-twofish/src/**/*.cs` |
+| `KeePassLib.csproj` | Defines the guard; the SDK compiles `bouncycastle-twofish/src/**/*.cs` with the rest |
 
 ### `KEYPASTE_KEPT_VERSIONS`
 
