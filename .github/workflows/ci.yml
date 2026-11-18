@@ -4,9 +4,7 @@ name: ci
 on:
   push:
     branches: ['**']
-    paths-ignore: ['**.md', 'LICENSE']
   pull_request:
-    paths-ignore: ['**.md', 'LICENSE']
   workflow_dispatch:
 
 permissions:
