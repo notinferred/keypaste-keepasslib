@@ -44,7 +44,7 @@ jobs:
       - name: Put this commit at third_party/KeePassLib
         run: rsync -a --delete --exclude .git --exclude packages.lock.json under-test/ product/third_party/KeePassLib/
 
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6
         with:
           global-json-file: product/global.json
 
