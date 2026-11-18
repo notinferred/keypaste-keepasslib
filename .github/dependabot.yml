@@ -1,0 +1,17 @@
+version: 2
+
+# A version is proposed once it is 7 days old; cooldown never delays a security update.
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    groups:
+      github-actions:
+        patterns: ['*']
+    commit-message:
+      prefix: ''
+    labels:
+      - dependencies

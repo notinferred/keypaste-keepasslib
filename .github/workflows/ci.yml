@@ -1,0 +1,64 @@
+name: ci
+
+# This library builds only inside the keypaste product, whose props, central package versions and lock files it uses.
+on:
+  push:
+    branches: ['**']
+    paths-ignore: ['**.md', 'LICENSE']
+  pull_request:
+    paths-ignore: ['**.md', 'LICENSE']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}${{ github.ref == 'refs/heads/main' && format('-{0}', github.sha) || '' }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+env:
+  DOTNET_NOLOGO: 'true'
+  DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: '1'
+  NUGET_XMLDOC_MODE: skip
+
+jobs:
+  product:
+    name: KeePassLib in the product
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: notinferred/keypaste
+          ref: main
+          path: product
+          persist-credentials: false
+          submodules: true
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          path: under-test
+          persist-credentials: false
+
+      # third_party/KeePassLib is a plain folder on the product's main until A.2 merges and a submodule after; copying over it serves both,
+      # keeping the lock file the plain folder carries.
+      - name: Put this commit at third_party/KeePassLib
+        run: rsync -a --delete --exclude .git --exclude packages.lock.json under-test/ product/third_party/KeePassLib/
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        with:
+          global-json-file: product/global.json
+
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('product/**/packages.lock.json') }}
+
+      - name: Restore, build and run the tests that exercise this library
+        working-directory: product
+        run: bash scripts/verify.sh test Keypaste.Core.Tests.TwofishVaultTests Keypaste.Core.Tests.VaultSaveTests Keypaste.Core.Tests.VaultRoundTripTests Keypaste.Core.Tests.ReleaseVaultFixtureTests Keypaste.Core.Tests.KdbxProbeTests
+
+      - name: Restore and build the whole product
+        working-directory: product
+        run: bash scripts/verify.sh compile
