@@ -119,6 +119,15 @@ KeePassLib sorts an entry's tags with `string.Compare` under the current culture
 | `PwEntry.cs`, `PwGroup.cs` | The `Tags` getter normalizes only a list that is not in normal form |
 | `KeePassLib.csproj` | Defines the guard |
 
+### `KEYPASTE_TRANSACT_REPARSE_POINTS`
+
+`FileTransactionEx` turns its transaction off for any vault file carrying `FileAttributes.ReparsePoint`, so that a save does not replace a symbolic link with a plain file. On Windows that attribute also marks OneDrive placeholders and deduplicated files, which upstream then saves by truncating the vault and writing it in place, so a failure or a crash mid-save leaves it empty or partial. keypaste hands the transaction the final target of a link, never the link, and this guard turns the transaction off only for a path that is still a link (`FileInfo.LinkTarget` is set), so every other reparse point is replaced by a flushed temporary file and one rename.
+
+| File | Change |
+|---|---|
+| `Serialization/FileTransactionEx.cs` | The constructor tests `FileInfo.LinkTarget` instead of `FileAttributes.ReparsePoint` |
+| `KeePassLib.csproj` | Defines the guard |
+
 ### Files excluded from compilation
 
 | Path | Reason |

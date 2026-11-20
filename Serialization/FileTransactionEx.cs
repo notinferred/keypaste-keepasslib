@@ -95,8 +95,12 @@ namespace KeePassLib.Serialization
 						// Performing a file transaction on a symbolic link
 						// would delete/replace the symbolic link instead of
 						// writing to its target
+#if KEYPASTE_TRANSACT_REPARSE_POINTS
+						if(new FileInfo(strPath).LinkTarget != null)
+#else
 						FileAttributes fa = File.GetAttributes(strPath);
 						if((long)(fa & FileAttributes.ReparsePoint) != 0)
+#endif
 							m_bTransacted = false;
 					}
 					else
