@@ -98,6 +98,9 @@ namespace KeePassLib
 
 		private byte[] m_pbHashOfFileOnDisk = null;
 		private byte[] m_pbHashOfLastIO = null;
+#if KEYPASTE_COUNT_UNKNOWN
+		private int m_cUnknownElementsRead = 0;
+#endif
 
 		private bool m_bUseFileTransactions = false;
 		private bool m_bUseFileLocks = false;
@@ -470,6 +473,18 @@ namespace KeePassLib
 			get { return m_pbHashOfFileOnDisk; }
 		}
 
+#if KEYPASTE_COUNT_UNKNOWN
+		/// <summary>
+		/// How many XML elements the last load skipped as unknown. Saving
+		/// does not write them.
+		/// </summary>
+		public int UnknownElementsRead
+		{
+			get { return m_cUnknownElementsRead; }
+			internal set { m_cUnknownElementsRead = value; }
+		}
+
+#endif
 		public byte[] HashOfLastIO
 		{
 			get { return m_pbHashOfLastIO; }
@@ -574,6 +589,9 @@ namespace KeePassLib
 
 			m_pbHashOfFileOnDisk = null;
 			m_pbHashOfLastIO = null;
+#if KEYPASTE_COUNT_UNKNOWN
+			m_cUnknownElementsRead = 0;
+#endif
 
 			m_bUseFileTransactions = false;
 			m_bUseFileLocks = false;

@@ -110,6 +110,9 @@ namespace KeePassLib.Serialization
 			if(xr == null) throw new ArgumentNullException("xr");
 
 			m_ctxGroups.Clear();
+#if KEYPASTE_COUNT_UNKNOWN
+			m_pwDatabase.UnknownElementsRead = 0;
+#endif
 
 			KdbContext ctx = KdbContext.Null;
 
@@ -1031,6 +1034,9 @@ namespace KeePassLib.Serialization
 		{
 			Debug.Assert(false); // Unknown node!
 			Debug.Assert(xr.NodeType == XmlNodeType.Element);
+#if KEYPASTE_COUNT_UNKNOWN
+			++m_pwDatabase.UnknownElementsRead;
+#endif
 
 			bool bRead = false;
 			int cOpen = 0;

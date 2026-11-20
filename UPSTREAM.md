@@ -128,6 +128,16 @@ KeePassLib sorts an entry's tags with `string.Compare` under the current culture
 | `Serialization/FileTransactionEx.cs` | The constructor tests `FileInfo.LinkTarget` instead of `FileAttributes.ReparsePoint` |
 | `KeePassLib.csproj` | Defines the guard |
 
+### `KEYPASTE_COUNT_UNKNOWN`
+
+`KdbxFile`'s reader skips every XML element it does not know (`ReadUnknown`), so data another program or a newer KDBX version adds is gone from the next save, as it is from KeePassXC's. keypaste keeps what it writes in elements KeePassLib knows; this guard counts the elements a load skipped, so keypaste can keep a copy of the file before the save that drops them, whatever its backup floor says, and say where that copy is. The count is reset by each load and by `Clear`, and nothing about reading or writing changes.
+
+| File | Change |
+|---|---|
+| `PwDatabase.cs` | Adds `UnknownElementsRead`, reset with the rest of the database's state |
+| `Serialization/KdbxFile.Read.Streamed.cs` | `ReadDocumentStreamed` resets the count and `ReadUnknown` adds one for each element it skips |
+| `KeePassLib.csproj` | Defines the guard |
+
 ### Files excluded from compilation
 
 | Path | Reason |

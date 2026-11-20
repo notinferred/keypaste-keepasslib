@@ -68,9 +68,13 @@
       KEYPASTE_TRANSACT_REPARSE_POINTS
                          turns a save's file transaction off for a symbolic link alone, not for
                          every reparse point, so a OneDrive placeholder is still replaced by one rename.
-      All ten are grep-able markers. Every site they guard is listed in UPSTREAM.md.
+
+      KEYPASTE_COUNT_UNKNOWN
+                         counts the XML elements a load skips as unknown, which a save drops, so
+                         keypaste can back the file up and say so before its first save.
+      All eleven are grep-able markers. Every site they guard is listed in UPSTREAM.md.
     -->
-    <DefineConstants>TRACE;NETSTANDARD2_0;KEYPASTE_NO_DPAPI;KEYPASTE_NO_GFX;KEYPASTE_KDBX_4_1_MOVES;KEYPASTE_CHALLENGE_RESPONSE;KEYPASTE_ATOMIC_REPLACE;KEYPASTE_DURABLE_REPLACE;KEYPASTE_TWOFISH;KEYPASTE_KEPT_VERSIONS;KEYPASTE_INVARIANT_TEXT;KEYPASTE_PURE_TAG_READS;KEYPASTE_TRANSACT_REPARSE_POINTS</DefineConstants>
+    <DefineConstants>TRACE;NETSTANDARD2_0;KEYPASTE_NO_DPAPI;KEYPASTE_NO_GFX;KEYPASTE_KDBX_4_1_MOVES;KEYPASTE_CHALLENGE_RESPONSE;KEYPASTE_ATOMIC_REPLACE;KEYPASTE_DURABLE_REPLACE;KEYPASTE_TWOFISH;KEYPASTE_KEPT_VERSIONS;KEYPASTE_INVARIANT_TEXT;KEYPASTE_PURE_TAG_READS;KEYPASTE_TRANSACT_REPARSE_POINTS;KEYPASTE_COUNT_UNKNOWN</DefineConstants>
 
     <!--
       docs/PRODUCT.md §3.9: dependencies on the secret path are minimised. This project has
