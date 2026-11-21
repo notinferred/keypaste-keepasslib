@@ -81,6 +81,12 @@ namespace KeePassLib.Serialization
 			if(m_bUsedOnce)
 				throw new InvalidOperationException("Do not reuse KdbxFile objects!");
 			m_bUsedOnce = true;
+#if KEYPASTE_COUNT_UNKNOWN
+			m_pwDatabase.UnknownDataRead = 0;
+#endif
+#if KEYPASTE_READ_VERSION
+			m_pwDatabase.FileVersionRead = 0;
+#endif
 
 #if KDBX_BENCHMARK
 			Stopwatch swTime = Stopwatch.StartNew();
@@ -304,6 +310,9 @@ namespace KeePassLib.Serialization
 						throw new OperationCanceledException();
 				}
 				m_uFileVersion = uVer;
+#if KEYPASTE_READ_VERSION
+				m_pwDatabase.FileVersionRead = uVer;
+#endif
 
 				while(true)
 				{
@@ -413,6 +422,9 @@ namespace KeePassLib.Serialization
 
 				default:
 					Debug.Assert(false);
+#if KEYPASTE_COUNT_UNKNOWN
+					++m_pwDatabase.UnknownDataRead;
+#endif
 					if(m_slLogger != null)
 						m_slLogger.SetText(KLRes.UnknownHeaderId + ": " +
 							btFieldID.ToString() + "!", LogStatusType.Warning);
@@ -479,6 +491,9 @@ namespace KeePassLib.Serialization
 
 				default:
 					Debug.Assert(false);
+#if KEYPASTE_COUNT_UNKNOWN
+					++m_pwDatabase.UnknownDataRead;
+#endif
 					break;
 			}
 

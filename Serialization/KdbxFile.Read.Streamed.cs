@@ -110,9 +110,6 @@ namespace KeePassLib.Serialization
 			if(xr == null) throw new ArgumentNullException("xr");
 
 			m_ctxGroups.Clear();
-#if KEYPASTE_COUNT_UNKNOWN
-			m_pwDatabase.UnknownElementsRead = 0;
-#endif
 
 			KdbContext ctx = KdbContext.Null;
 
@@ -141,6 +138,9 @@ namespace KeePassLib.Serialization
 				switch(xr.NodeType)
 				{
 					case XmlNodeType.Element:
+#if KEYPASTE_COUNT_UNKNOWN
+						CountUnknownAttributes(xr);
+#endif
 						ctx = ReadXmlElement(ctx, xr);
 						break;
 
@@ -1030,12 +1030,32 @@ namespace KeePassLib.Serialization
 			return new ProtectedBinary(false, pbData);
 		}
 
+#if KEYPASTE_COUNT_UNKNOWN
+		private void CountUnknownAttributes(XmlReader xr)
+		{
+			if(!xr.MoveToFirstAttribute()) return;
+
+			do
+			{
+				string strName = xr.Name;
+				if((strName != AttrId) && (strName != AttrRef) &&
+					(strName != AttrProtected) && (strName != AttrProtectedInMemPlainXml) &&
+					(strName != AttrCompressed) && (strName != "xmlns") &&
+					!strName.StartsWith("xmlns:", StringComparison.Ordinal))
+					++m_pwDatabase.UnknownDataRead;
+			}
+			while(xr.MoveToNextAttribute());
+
+			xr.MoveToElement();
+		}
+
+#endif
 		private void ReadUnknown(XmlReader xr)
 		{
 			Debug.Assert(false); // Unknown node!
 			Debug.Assert(xr.NodeType == XmlNodeType.Element);
 #if KEYPASTE_COUNT_UNKNOWN
-			++m_pwDatabase.UnknownElementsRead;
+			++m_pwDatabase.UnknownDataRead;
 #endif
 
 			bool bRead = false;

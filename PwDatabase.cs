@@ -99,7 +99,10 @@ namespace KeePassLib
 		private byte[] m_pbHashOfFileOnDisk = null;
 		private byte[] m_pbHashOfLastIO = null;
 #if KEYPASTE_COUNT_UNKNOWN
-		private int m_cUnknownElementsRead = 0;
+		private int m_cUnknownDataRead = 0;
+#endif
+#if KEYPASTE_READ_VERSION
+		private uint m_uFileVersionRead = 0;
 #endif
 
 		private bool m_bUseFileTransactions = false;
@@ -475,13 +478,25 @@ namespace KeePassLib
 
 #if KEYPASTE_COUNT_UNKNOWN
 		/// <summary>
-		/// How many XML elements the last load skipped as unknown. Saving
-		/// does not write them.
+		/// How many XML elements and attributes and header fields the last
+		/// load skipped as unknown. Saving does not write them.
 		/// </summary>
-		public int UnknownElementsRead
+		public int UnknownDataRead
 		{
-			get { return m_cUnknownElementsRead; }
-			internal set { m_cUnknownElementsRead = value; }
+			get { return m_cUnknownDataRead; }
+			internal set { m_cUnknownDataRead = value; }
+		}
+
+#endif
+#if KEYPASTE_READ_VERSION
+		/// <summary>
+		/// The KDBX format version of the file the last load read, or 0 when
+		/// nothing was loaded. Saving writes the version the data needs.
+		/// </summary>
+		public uint FileVersionRead
+		{
+			get { return m_uFileVersionRead; }
+			internal set { m_uFileVersionRead = value; }
 		}
 
 #endif
@@ -590,7 +605,10 @@ namespace KeePassLib
 			m_pbHashOfFileOnDisk = null;
 			m_pbHashOfLastIO = null;
 #if KEYPASTE_COUNT_UNKNOWN
-			m_cUnknownElementsRead = 0;
+			m_cUnknownDataRead = 0;
+#endif
+#if KEYPASTE_READ_VERSION
+			m_uFileVersionRead = 0;
 #endif
 
 			m_bUseFileTransactions = false;

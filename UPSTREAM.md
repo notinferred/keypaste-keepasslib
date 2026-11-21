@@ -130,12 +130,23 @@ KeePassLib sorts an entry's tags with `string.Compare` under the current culture
 
 ### `KEYPASTE_COUNT_UNKNOWN`
 
-`KdbxFile`'s reader skips every XML element it does not know (`ReadUnknown`), so data another program or a newer KDBX version adds is gone from the next save, as it is from KeePassXC's. keypaste keeps what it writes in elements KeePassLib knows; this guard counts the elements a load skipped, so keypaste can keep a copy of the file before the save that drops them, whatever its backup floor says, and say where that copy is. The count is reset by each load and by `Clear`, and nothing about reading or writing changes.
+`KdbxFile`'s reader skips every XML element it does not know (`ReadUnknown`), ignores every attribute other than the five it reads, and skips outer and inner header fields of an unknown ID, so data another program or a newer KDBX version adds is gone from the next save, as it is from KeePassXC's. keypaste keeps what it writes in elements KeePassLib knows; this guard counts the elements, attributes and header fields a load skipped, so keypaste can keep a copy of the file before the save that drops them, whatever its backup floor says, and say where that copy is. An attribute counts by name, so one of the five on an element that does not take it is not counted, and a namespace declaration, which holds no data, is not either. The count is reset by each load and by `Clear`, and nothing about reading or writing changes.
 
 | File | Change |
 |---|---|
-| `PwDatabase.cs` | Adds `UnknownElementsRead`, reset with the rest of the database's state |
-| `Serialization/KdbxFile.Read.Streamed.cs` | `ReadDocumentStreamed` resets the count and `ReadUnknown` adds one for each element it skips |
+| `PwDatabase.cs` | Adds `UnknownDataRead`, reset with the rest of the database's state |
+| `Serialization/KdbxFile.Read.cs` | `Load` resets the count, and `ReadHeaderField` and `ReadInnerHeaderField` add one for each field of an unknown ID |
+| `Serialization/KdbxFile.Read.Streamed.cs` | `ReadDocumentStreamed` passes each element it reads to `CountUnknownAttributes`, which adds one for each attribute other than `ID`, `Ref`, `Protected`, `ProtectInMemory` and `Compressed`, and `ReadUnknown` adds one for each element it skips |
+| `KeePassLib.csproj` | Defines the guard |
+
+### `KEYPASTE_READ_VERSION`
+
+`KdbxFile` writes the lowest KDBX version the database's content needs, which is 4 or later for every database, so saving a KDBX 3.1 file replaces it with one KeePass before 2.35 cannot open, and upstream keeps the version it read private to the reader. This guard records that version on the database, so keypaste can keep a copy of the 3.1 file before its first save, whatever its backup floor says, and say where that copy is. It is reset by each load and by `Clear`, and nothing about reading or writing changes.
+
+| File | Change |
+|---|---|
+| `PwDatabase.cs` | Adds `FileVersionRead`, reset with the rest of the database's state |
+| `Serialization/KdbxFile.Read.cs` | `Load` resets it and `LoadHeader` sets it to the version the header names |
 | `KeePassLib.csproj` | Defines the guard |
 
 ### Files excluded from compilation
